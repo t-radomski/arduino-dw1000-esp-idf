@@ -57,9 +57,14 @@
 #include <DW1000NgRanging.hpp>
 
 // connection pins
-const uint8_t PIN_RST = 9; // reset pin
-const uint8_t PIN_IRQ = 2; // irq pin
-const uint8_t PIN_SS = SS; // spi select pin
+const uint8_t PIN_RST = 17; // reset pin
+const uint8_t PIN_IRQ = 16; // irq pin
+const uint8_t PIN_MISO = 10;
+const uint8_t PIN_MOSI = 11;
+const uint8_t PIN_SCK = 12;
+const uint8_t PIN_CS = 13;
+
+SPIClass *_spi = nullptr;
 
 // messages used in the ranging protocol
 // TODO replace by enum
@@ -136,8 +141,10 @@ void setup() {
     Serial.begin(115200);
     delay(1000);
     Serial.println(F("### DW1000Ng-arduino-ranging-anchor ###"));
+    _spi = new SPIClass();
+    _spi->begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CS);
     // initialize the driver
-    DW1000Ng::initialize(PIN_SS, PIN_IRQ, PIN_RST);
+    DW1000Ng::initialize(PIN_CS, PIN_IRQ, PIN_RST, *_spi);
     Serial.println(F("DW1000Ng initialized ..."));
     // general configuration
     DW1000Ng::applyConfiguration(DEFAULT_CONFIG);

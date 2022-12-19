@@ -46,23 +46,23 @@
 
 #include <DW1000Ng.hpp>
 
-// connection pins
-#if defined(ESP8266)
-const uint8_t PIN_RST = 5; // reset pin
-const uint8_t PIN_IRQ = 4; // irq pin
-const uint8_t PIN_SS = 15; // spi select pin
-#else
-const uint8_t PIN_RST = 9; // reset pin
-const uint8_t PIN_IRQ = 2; // irq pin
-const uint8_t PIN_SS = SS; // spi select pin
-#endif
+const uint8_t PIN_RST = 17; // reset pin
+const uint8_t PIN_IRQ = 16; // irq pin
+const uint8_t PIN_MISO = 10;
+const uint8_t PIN_MOSI = 11;
+const uint8_t PIN_SCK = 12;
+const uint8_t PIN_CS = 13;
+
+SPIClass *_spi = nullptr;
 
 
 void setup() {
   // DEBUG monitoring
   Serial.begin(9600);
+  _spi = new SPIClass();
+  _spi->begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CS);
   // initialize the driver
-  DW1000Ng::initialize(PIN_SS, PIN_IRQ, PIN_RST);
+  DW1000Ng::initialize(PIN_CS, PIN_IRQ, PIN_RST, *_spi);
   Serial.println(F("DW1000Ng initialized ..."));
   // general configuration
   DW1000Ng::setDeviceAddress(5);

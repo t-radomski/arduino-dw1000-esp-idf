@@ -1303,8 +1303,8 @@ namespace DW1000Ng {
 		
 	}
 
-	void initializeNoInterrupt(uint8_t ss, uint8_t rst) {
-		initialize(ss, 0xff, rst);
+	void initializeNoInterrupt(uint8_t ss, uint8_t rst, SPIClass&spi) {
+		initialize(ss, 0xff, rst, spi);
 	}
 
 	/* callback handler management. */
@@ -2111,7 +2111,7 @@ namespace DW1000Ng {
         b = sprintf(msgBuffer, "Data, bytes: %d\nB: 7 6 5 4 3 2 1 0\n", n); // TODO - type
         for(i = 0; i < n; i++) {
             byte curByte = data[i];
-            snprintf(&msgBuffer[b++], 2, "%d", (i+1));
+            snprintf(&msgBuffer[b++], 11, "%d", (i+1));
             msgBuffer[b++] = (char)((i+1) & 0xFF);
             msgBuffer[b++] = ':';
             msgBuffer[b++] = ' ';
@@ -2136,7 +2136,7 @@ namespace DW1000Ng {
         b     = sprintf(msgBuffer, "Reg: 0x%02x, bytes: %d\nB: 7 6 5 4 3 2 1 0\n", cmd, n);  // TODO - tpye
         for(i = 0; i < n; i++) {
             byte curByte = readBuf[i];
-            snprintf(&msgBuffer[b++], 2, "%d", (i+1));
+            snprintf(&msgBuffer[b++], 11, "%d", (i+1));
             msgBuffer[b++] = (char)((i+1) & 0xFF);
             msgBuffer[b++] = ':';
             msgBuffer[b++] = ' ';

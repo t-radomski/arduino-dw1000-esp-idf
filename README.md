@@ -5,12 +5,20 @@
 <br/>
 <div align="center">
 
+## ESP-IDF Compatible Fork
 ### Arduino library to use Decawave's [DW1000](https://www.decawave.com/product/dw1000-radio-ic/) IC and relative modules.
 
 ![c++11](https://img.shields.io/badge/C%2B%2B-11-brightgreen.svg?&style=for-the-badge)
 ![Arduino](https://img.shields.io/badge/Arduino-%3E%3D1.6.6-blue.svg?&style=for-the-badge)
 
 </div>
+
+Differences with F-Army/arduino-dw1000-ng
+------------
+- Updates the DW1000 initializer function to allow for passing in a custom `SPIClass` instance
+- Updates all example projects to account for custom SPI
+- Small bug fix in DW1000Ng.cpp 
+- Adds a `component.mk` file so that this can be used as a component library with ESP-IDF
 
 Status
 ------------
