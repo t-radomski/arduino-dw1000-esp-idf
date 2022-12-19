@@ -15,7 +15,6 @@
 
 Differences with F-Army/arduino-dw1000-ng
 ------------
-- Updates the DW1000 initializer function to allow for passing in a custom `SPIClass` instance
 - Updates all example projects to account for custom SPI
 - Small bug fix in DW1000Ng.cpp 
 - Adds a `component.mk` file so that this can be used as a component library with ESP-IDF
