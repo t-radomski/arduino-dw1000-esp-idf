@@ -42,10 +42,13 @@
  * Helper functions.
  */
 
-#include <Arduino.h>
+#include <stdint.h>
+#include <cstring>
 #include "DW1000NgUtils.hpp"
 #include "DW1000NgConstants.hpp"
 #include "DW1000NgRegisters.hpp"
+#include "DW1000NgTypes.hpp"
+
 
 namespace DW1000NgUtils {
 	
@@ -59,9 +62,9 @@ namespace DW1000NgUtils {
 	* @param bit
 	* 		The position of the bit to be set.
 	* @param val
-	*		The boolean value to be set to the given bit position.
+	*		The bool value to be set to the given bit position.
 	*/
-	void setBit(byte data[], uint16_t n, uint16_t bit, boolean val) {
+	void setBit(byte data[], uint16_t n, uint16_t bit, bool val) {
 		uint16_t idx;
 		uint8_t shift;
 		
@@ -88,7 +91,7 @@ namespace DW1000NgUtils {
 	* @param bit
 	* 		The position of the bit to be checked.
 	*/
-	boolean getBit(byte data[], uint16_t n, uint16_t bit) {
+	bool getBit(byte data[], uint16_t n, uint16_t bit) {
 		uint16_t idx;
 		uint8_t  shift;
 		
@@ -99,7 +102,7 @@ namespace DW1000NgUtils {
 		byte targetByte = data[idx];
 		shift = bit%8;
 		
-		return bitRead(targetByte, shift); // TODO wrong type returned byte instead of boolean
+		return bitRead(targetByte, shift); // TODO wrong type returned byte instead of bool
 	}
 
 	void writeValueToBytes(byte data[], uint64_t val, uint8_t n) {
