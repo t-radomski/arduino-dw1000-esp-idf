@@ -45,7 +45,7 @@ namespace SPIporting{
     /** 
     (Re-)selects a specific DW1000 chip for communication. Used in case you switched SPI to another device.
     */
-    void SPIselect(uint8_t slaveSelectPIN, uint8_t irq = 0xff);
+    void SPIselect(uint8_t slaveSelectPIN);
 
     /**
     Function to write to the SPI.

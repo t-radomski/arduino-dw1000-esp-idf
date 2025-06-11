@@ -5,6 +5,7 @@ idf_component_register(
         "src/DW1000NgRanging.cpp"
         "src/DW1000NgRTLS.cpp"
         "src/DW1000NgTime.cpp"
+        "src/SPIporting.cpp"
     REQUIRES driver
     INCLUDE_DIRS "src"
 )

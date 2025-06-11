@@ -55,6 +55,7 @@
 #include "DW1000NgRegisters.hpp"
 #include "SPIporting.hpp"
 #include "DW1000NgTypes.hpp"
+#include "config.h"
 
 #include "driver/gpio.h"
 #include "esp_intr_alloc.h"
@@ -1253,9 +1254,13 @@ namespace DW1000Ng {
 	void initialize(uint8_t ss, uint8_t irq, uint8_t rst) {
 		// generous initial init/wake-up-idle platform_delay
 		platform_delay(5);
-		_ss = ss;
-		_irq = irq;
-		_rst = rst;
+		// _ss = ss;
+		// _irq = irq;
+		// _rst = rst;
+
+		_ss = Config::PIN_SS;
+		_irq = Config::PIN_IRQ;
+		_rst = Config::PIN_RST;
 
 		if(rst != 0xff) {
 			// DW1000 data sheet v2.08 §5.6.1 page 20, the RSTn pin should not be driven high but left floating.
@@ -1278,7 +1283,7 @@ namespace DW1000Ng {
 			gpio_install_isr_service(0); // Call once in your app, ignore error if already installed
 			gpio_isr_handler_add((gpio_num_t)_irq, (gpio_isr_t)interruptServiceRoutine, NULL);
 		}
-		SPIporting::SPIselect(_ss, _irq);
+		SPIporting::SPIselect(_ss);
 		// reset chip (either soft or hard)
 		reset();
 		
