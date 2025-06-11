@@ -22,12 +22,12 @@
  * SOFTWARE.
 */
 
-#include <Arduino.h>
 #include "DW1000NgRTLS.hpp"
 #include "DW1000Ng.hpp"
 #include "DW1000NgUtils.hpp"
 #include "DW1000NgTime.hpp"
 #include "DW1000NgRanging.hpp"
+#include "esp_rom_sys.h"
 
 static byte SEQ_NUMBER = 0;
 
@@ -137,7 +137,7 @@ namespace DW1000NgRTLS {
         DW1000Ng::clearTransmitStatus();
     }
 
-    boolean receiveFrame() {
+    bool receiveFrame() {
         DW1000Ng::startReceive();
         while(!DW1000Ng::isReceiveDone()) {
             if(DW1000Ng::isReceiveTimeout() ) {
@@ -152,7 +152,7 @@ namespace DW1000NgRTLS {
         return true;
     }
 
-    static boolean waitForNextRangingStep() {
+    static bool waitForNextRangingStep() {
         DW1000NgRTLS::waitForTransmission();
         if(!DW1000NgRTLS::receiveFrame()) return false;
         return true;
@@ -299,7 +299,8 @@ namespace DW1000NgRTLS {
                 DW1000NgRTLS::transmitResponseToPoll(&poll_data[7]);
                 DW1000NgRTLS::waitForTransmission();
                 uint64_t timeResponseToPoll = DW1000Ng::getTransmitTimestamp();
-                delayMicroseconds(1500);
+                // delayMicroseconds(1500);
+                esp_rom_delay_us(1500);
 
                 if(!DW1000NgRTLS::receiveFrame()) {
                     returnValue = {false, 0};

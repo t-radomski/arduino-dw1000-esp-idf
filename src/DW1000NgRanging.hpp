@@ -24,7 +24,6 @@
 
 #pragma once
 
-#include <Arduino.h>
 
 namespace DW1000NgRanging {
 

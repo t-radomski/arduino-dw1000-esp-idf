@@ -1,5 +1,7 @@
 #pragma once
 #include <stdint.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 typedef uint8_t byte;
 
@@ -13,3 +15,7 @@ typedef uint8_t byte;
 #ifndef bitRead
 #define bitRead(value, bit)  (((value) >> (bit)) & 0x01)
 #endif
+
+inline void platform_delay(uint32_t ms) {
+    vTaskDelay(ms / portTICK_PERIOD_MS);
+}

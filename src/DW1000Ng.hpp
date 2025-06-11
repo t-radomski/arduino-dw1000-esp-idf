@@ -46,8 +46,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <Arduino.h>
-#include <SPI.h>
 #include "DW1000NgConstants.hpp"
 #include "DW1000NgConfiguration.hpp"
 #include "DW1000NgCompileOptions.hpp"
@@ -61,7 +59,7 @@ namespace DW1000Ng {
 	@param[in] irq The interrupt line/pin that connects the Arduino.
 	@param[in] rst The reset line/pin for hard resets of ICs that connect to the Arduino. Value 0xff means soft reset.
 	*/
-	void initialize(uint8_t ss, uint8_t irq, uint8_t rst = 0xff, SPIClass&spi = SPI);
+	void initialize(uint8_t ss, uint8_t irq, uint8_t rst = 0xff);
 
 	/** 
 	Initiates and starts a sessions with a DW1000 without interrupt. If rst is not set or value 0xff, a soft resets (i.e. command
@@ -70,7 +68,7 @@ namespace DW1000Ng {
 	@param[in] ss  The SPI Selection pin used to identify the specific connection
 	@param[in] rst The reset line/pin for hard resets of ICs that connect to the Arduino. Value 0xff means soft reset.
 	*/
-	void initializeNoInterrupt(uint8_t ss, uint8_t rst, SPIClass&spi = SPI);
+	void initializeNoInterrupt(uint8_t ss, uint8_t rst);
 	
 	/** 
 	Enable debounce Clock, used to clock the LED blinking
@@ -241,7 +239,7 @@ namespace DW1000Ng {
 
 	@param [in] data the string to transmit
 	*/
-	void setTransmitData(const String& data);
+	void setTransmitData(const char* data);
 
 	/**
 	Gets the received bytes and stores them in a byte array
@@ -256,7 +254,7 @@ namespace DW1000Ng {
 
 	param [out] data the string that will contain the data
 	*/
-	void getReceivedData(String& data);
+	void getReceivedData(char* data);
 
 	/**
 	Calculates the length of the received data
@@ -418,19 +416,19 @@ namespace DW1000Ng {
 	*/
 	void interruptServiceRoutine();
 	
-	boolean isTransmitDone();
+	bool isTransmitDone();
 
 	void clearTransmitStatus();
 
-	boolean isReceiveDone();
+	bool isReceiveDone();
 
 	void clearReceiveStatus();
 
-	boolean isReceiveFailed();
+	bool isReceiveFailed();
 
 	void clearReceiveFailedStatus();
 
-	boolean isReceiveTimeout();
+	bool isReceiveTimeout();
 
 	void clearReceiveTimeoutStatus();
 
@@ -446,7 +444,7 @@ namespace DW1000Ng {
 
 	@param [in] val True here means active high
 	*/
-	void setInterruptPolarity(boolean val);
+	void setInterruptPolarity(bool val);
 
 	/**
 	Applies the target configuration to the DW1000
@@ -553,14 +551,14 @@ namespace DW1000Ng {
 	WARNING: this just sets the relative bits inside the register.
 	You must refer to the DW1000 User manual to activate it properly.
 	*/
-	void setDoubleBuffering(boolean val);
+	void setDoubleBuffering(bool val);
 
 	/**
 	Enables frames up to 1023 byte length
 
 	@param [in] val true or false
 	*/
-	void useExtendedFrameLength(boolean val);
+	void useExtendedFrameLength(bool val);
 	
 	/**
 	Sets the time before the device enters receive after a transmission.

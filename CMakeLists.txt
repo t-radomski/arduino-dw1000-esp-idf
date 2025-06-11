@@ -5,7 +5,8 @@ idf_component_register(
         "src/DW1000NgRanging.cpp"
         "src/DW1000NgRTLS.cpp"
         "src/DW1000NgTime.cpp"
+    REQUIRES driver
     INCLUDE_DIRS "src"
 )
 
-target_compile_options(${COMPONENT_LIB} PRIVATE -std=gnu++11)
+target_compile_options(${COMPONENT_LIB} PRIVATE -std=gnu++23)

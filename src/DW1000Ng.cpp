@@ -45,6 +45,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <cmath>
 #if defined(__AVR__)
 	#include <EEPROM.h>
 #endif
@@ -53,6 +54,10 @@
 #include "DW1000NgConstants.hpp"
 #include "DW1000NgRegisters.hpp"
 #include "SPIporting.hpp"
+#include "DW1000NgTypes.hpp"
+
+#include "driver/gpio.h"
+#include "esp_intr_alloc.h"
 
 namespace DW1000Ng {
 	
@@ -95,14 +100,14 @@ namespace DW1000Ng {
 		PreambleLength	_preambleLength;
 		PreambleCode	_preambleCode;
 		Channel        	_channel;
-		boolean     	_smartPower;
-		boolean     	_frameCheck;
-		boolean     	_debounceClockEnabled = false;
-		boolean     	_nlos = false;
-		boolean			_standardSFD = true;
-		boolean     	_autoTXPower = true;
-		boolean     	_autoTCPGDelay = true;
-		boolean 		_wait4resp = false;
+		bool     	_smartPower;
+		bool     	_frameCheck;
+		bool     	_debounceClockEnabled = false;
+		bool     	_nlos = false;
+		bool			_standardSFD = true;
+		bool     	_autoTXPower = true;
+		bool     	_autoTCPGDelay = true;
+		bool 		_wait4resp = false;
 		uint16_t		_antennaTxDelay = 0;
 		uint16_t		_antennaRxDelay = 0;
 
@@ -223,7 +228,7 @@ namespace DW1000Ng {
 		* @param[in] value
 		*		The value of the bit to set. It, obviously, can be true/false or 1/0
 		*/
-		void _writeBitToRegister(byte bitRegister, uint16_t RegisterOffset, uint16_t bitRegister_LEN, uint16_t selectedBit, boolean value) {
+		void _writeBitToRegister(byte bitRegister, uint16_t RegisterOffset, uint16_t bitRegister_LEN, uint16_t selectedBit, bool value) {
 			uint16_t idx;
 			uint8_t bitPosition;
 
@@ -846,20 +851,20 @@ namespace DW1000Ng {
 			_writeTransmitFrameControlRegister();
 		}
 
-		void _useExtendedFrameLength(boolean val) {
+		void _useExtendedFrameLength(bool val) {
 			DW1000NgUtils::setBit(_syscfg, LEN_SYS_CFG, PHR_MODE_0_BIT, val);
 			DW1000NgUtils::setBit(_syscfg, LEN_SYS_CFG, PHR_MODE_1_BIT, val);
 		}
 
-		void _setReceiverAutoReenable(boolean val) {
+		void _setReceiverAutoReenable(bool val) {
 			DW1000NgUtils::setBit(_syscfg, LEN_SYS_CFG, RXAUTR_BIT, val);
 		}
 
-		void _useFrameCheck(boolean val) {
+		void _useFrameCheck(bool val) {
 			_frameCheck = val;
 		}
 
-		void _setNlosOptimization(boolean val) {
+		void _setNlosOptimization(bool val) {
 			_nlos = val;
 			if(_nlos) {
 				_ldecfg1();
@@ -867,7 +872,7 @@ namespace DW1000Ng {
 			}
 		}
 
-		void _useSmartPower(boolean smartPower) {
+		void _useSmartPower(bool smartPower) {
 			_smartPower = smartPower;
 			DW1000NgUtils::setBit(_syscfg, LEN_SYS_CFG, DIS_STXP_BIT, !smartPower);
 			_writeSystemConfigurationRegister();
@@ -967,7 +972,7 @@ namespace DW1000Ng {
 			_preambleCode = preamble_code;
 		}
 
-		boolean _checkPreambleCodeValidity() {
+		bool _checkPreambleCodeValidity() {
 			byte preacode = static_cast<byte>(_preambleCode);
 			if(_pulseFrequency == PulseFrequency::FREQ_16MHZ) {
 				for (auto i = 0; i < 2; i++) {
@@ -1033,33 +1038,33 @@ namespace DW1000Ng {
 			}
 		}
 
-		void _interruptOnSent(boolean val) {
+		void _interruptOnSent(bool val) {
 			DW1000NgUtils::setBit(_sysmask, LEN_SYS_MASK, TXFRS_BIT, val);
 		}
 
-		void _interruptOnReceived(boolean val) {
+		void _interruptOnReceived(bool val) {
 			DW1000NgUtils::setBit(_sysmask, LEN_SYS_MASK, RXDFR_BIT, val);
 			DW1000NgUtils::setBit(_sysmask, LEN_SYS_MASK, RXFCG_BIT, val);
 		}
 
-		void _interruptOnReceiveFailed(boolean val) {
+		void _interruptOnReceiveFailed(bool val) {
 			DW1000NgUtils::setBit(_sysmask, LEN_SYS_STATUS, RXPHE_BIT, val);
 			DW1000NgUtils::setBit(_sysmask, LEN_SYS_STATUS, RXFCE_BIT, val);
 			DW1000NgUtils::setBit(_sysmask, LEN_SYS_STATUS, RXRFSL_BIT, val);
 			DW1000NgUtils::setBit(_sysmask, LEN_SYS_STATUS, LDEERR_BIT, val);
 		}
 
-		void _interruptOnReceiveTimeout(boolean val) {
+		void _interruptOnReceiveTimeout(bool val) {
 			DW1000NgUtils::setBit(_sysmask, LEN_SYS_MASK, RXRFTO_BIT, val);
 			DW1000NgUtils::setBit(_sysmask, LEN_SYS_MASK, RXPTO_BIT, val);
 			DW1000NgUtils::setBit(_sysmask, LEN_SYS_MASK, RXSFDTO_BIT, val);
 		}
 
-		void _interruptOnReceiveTimestampAvailable(boolean val) {
+		void _interruptOnReceiveTimestampAvailable(bool val) {
 			DW1000NgUtils::setBit(_sysmask, LEN_SYS_MASK, LDEDONE_BIT, val);
 		}
 
-		void _interruptOnAutomaticAcknowledgeTrigger(boolean val) {
+		void _interruptOnAutomaticAcknowledgeTrigger(bool val) {
 			DW1000NgUtils::setBit(_sysmask, LEN_SYS_MASK, AAT_BIT, val);
 		}
 
@@ -1086,11 +1091,11 @@ namespace DW1000Ng {
 			_writeBytesToRegister(PMSC, PMSC_CTRL0_SUB, pmscctrl0, 2);
 			// uCode
 			_enableClock(LDE_CLOCK);
-			delay(5);
+			platform_delay(5);
 			_writeBytesToRegister(OTP_IF, OTP_CTRL_SUB, otpctrl, 2);
-			delay(1);
+			platform_delay(1);
 			_enableClock(SYS_AUTO_CLOCK);
-			delay(5);
+			platform_delay(5);
 			pmscctrl0[0] = 0x00;
 			pmscctrl0[1] &= 0x02;
 			_writeBytesToRegister(PMSC, PMSC_CTRL0_SUB, pmscctrl0, 2);
@@ -1187,15 +1192,15 @@ namespace DW1000Ng {
 			_readBytesFromRegister(TX_FCTRL, NO_SUB, _txfctrl, LEN_TX_FCTRL);
 		}
 
-		boolean _isTransmitDone() {
+		bool _isTransmitDone() {
 			return DW1000NgUtils::getBit(_sysstatus, LEN_SYS_STATUS, TXFRS_BIT);
 		}
 
-		boolean _isReceiveTimestampAvailable() {
+		bool _isReceiveTimestampAvailable() {
 			return DW1000NgUtils::getBit(_sysstatus, LEN_SYS_STATUS, LDEDONE_BIT);
 		}
 
-		boolean _isReceiveDone() {
+		bool _isReceiveDone() {
 			if(_frameCheck) {
 				return (DW1000NgUtils::getBit(_sysstatus, LEN_SYS_STATUS, RXFCG_BIT) &&
 						DW1000NgUtils::getBit(_sysstatus, LEN_SYS_STATUS, RXDFR_BIT));
@@ -1203,20 +1208,20 @@ namespace DW1000Ng {
 			return DW1000NgUtils::getBit(_sysstatus, LEN_SYS_STATUS, RXDFR_BIT);
 		}
 
-		boolean _isReceiveFailed() {
+		bool _isReceiveFailed() {
 			return (DW1000NgUtils::getBit(_sysstatus, LEN_SYS_STATUS, RXPHE_BIT) ||
 					DW1000NgUtils::getBit(_sysstatus, LEN_SYS_STATUS, RXFCE_BIT) ||
 					DW1000NgUtils::getBit(_sysstatus, LEN_SYS_STATUS, RXRFSL_BIT) ||
 					DW1000NgUtils::getBit(_sysstatus, LEN_SYS_STATUS, LDEERR_BIT));
 		}
 
-		boolean _isReceiveTimeout() {
+		bool _isReceiveTimeout() {
 			return (DW1000NgUtils::getBit(_sysstatus, LEN_SYS_STATUS, RXRFTO_BIT) || 
 					DW1000NgUtils::getBit(_sysstatus, LEN_SYS_STATUS, RXPTO_BIT) || 
 					DW1000NgUtils::getBit(_sysstatus, LEN_SYS_STATUS, RXSFDTO_BIT));
 		}
 
-		boolean _isClockProblem() {
+		bool _isClockProblem() {
 			return (DW1000NgUtils::getBit(_sysstatus, LEN_SYS_STATUS, CLKPLL_LL_BIT) ||
 					DW1000NgUtils::getBit(_sysstatus, LEN_SYS_STATUS, RFPLL_LL_BIT));
 		}
@@ -1235,41 +1240,51 @@ namespace DW1000Ng {
             _writeBytesToRegister(RF_CONF, RF_CONF_SUB, enable_mask, LEN_RX_CONF_SUB);
         }
 
-		void _uploadConfigToAON() {
-			/* Write 1 in UPL_CFG_BIT */
-			_writeValueToRegister(AON, AON_CTRL_SUB, 0x04, LEN_AON_CTRL);
-			/* Clear the register */
-			_writeValueToRegister(AON, AON_CTRL_SUB, 0x00, LEN_AON_CTRL);
-		}
+		// void _uploadConfigToAON() {
+		// 	/* Write 1 in UPL_CFG_BIT */
+		// 	_writeValueToRegister(AON, AON_CTRL_SUB, 0x04, LEN_AON_CTRL);
+		// 	/* Clear the register */
+		// 	_writeValueToRegister(AON, AON_CTRL_SUB, 0x00, LEN_AON_CTRL);
+		// }
 	}
 
 	/* ####################### PUBLIC ###################### */
 
-	void initialize(uint8_t ss, uint8_t irq, uint8_t rst, SPIClass&spi) {
-		// generous initial init/wake-up-idle delay
-		delay(5);
+	void initialize(uint8_t ss, uint8_t irq, uint8_t rst) {
+		// generous initial init/wake-up-idle platform_delay
+		platform_delay(5);
 		_ss = ss;
 		_irq = irq;
 		_rst = rst;
 
 		if(rst != 0xff) {
 			// DW1000 data sheet v2.08 §5.6.1 page 20, the RSTn pin should not be driven high but left floating.
-			pinMode(_rst, INPUT);
+			gpio_set_direction((gpio_num_t)_rst, GPIO_MODE_INPUT);
 		}
 
-		SPIporting::SPIinit(spi);
+		SPIporting::SPIinit();
 		// pin and basic member setup
 		// attach interrupt
 		// TODO throw error if pin is not a interrupt pin
-		if(_irq != 0xff)
-			attachInterrupt(digitalPinToInterrupt(_irq), interruptServiceRoutine, RISING);
+		if(_irq != 0xff) {
+			gpio_config_t io_conf = {};
+			io_conf.intr_type = GPIO_INTR_POSEDGE; // RISING edge
+			io_conf.mode = GPIO_MODE_INPUT;
+			io_conf.pin_bit_mask = (1ULL << _irq);
+			io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+			io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
+			gpio_config(&io_conf);
+
+			gpio_install_isr_service(0); // Call once in your app, ignore error if already installed
+			gpio_isr_handler_add((gpio_num_t)_irq, (gpio_isr_t)interruptServiceRoutine, NULL);
+		}
 		SPIporting::SPIselect(_ss, _irq);
 		// reset chip (either soft or hard)
 		reset();
 		
 		SPIporting::setSPIspeed(SPIClock::SLOW);
 		_enableClock(SYS_XTI_CLOCK);
-		delay(5);
+		platform_delay(5);
 
 		// Configure the CPLL lock detect
 		_writeBitToRegister(EXT_SYNC, EC_CTRL_SUB, LEN_EC_CTRL, PLLLDT_BIT, true);
@@ -1289,7 +1304,7 @@ namespace DW1000Ng {
 		_tmeas23C = buf_otp[0];
 
 		_enableClock(SYS_AUTO_CLOCK);
-		delay(5);
+		platform_delay(5);
 		SPIporting::setSPIspeed(SPIClock::FAST);
 
 		_readNetworkIdAndDeviceAddress();
@@ -1303,8 +1318,8 @@ namespace DW1000Ng {
 		
 	}
 
-	void initializeNoInterrupt(uint8_t ss, uint8_t rst, SPIClass&spi) {
-		initialize(ss, 0xff, rst, spi);
+	void initializeNoInterrupt(uint8_t ss, uint8_t rst) {
+		initialize(ss, 0xff, rst);
 	}
 
 	/* callback handler management. */
@@ -1333,9 +1348,11 @@ namespace DW1000Ng {
 	}
 
 #if defined(ESP8266)
-	void ICACHE_RAM_ATTR interruptServiceRoutine() {
+    void ICACHE_RAM_ATTR interruptServiceRoutine() {
+#elif defined(ESP32)
+    void IRAM_ATTR interruptServiceRoutine(void* arg) {
 #else
-	void interruptServiceRoutine() {
+    void interruptServiceRoutine() {
 #endif		// read current status and handle via callbacks
 		_readSystemEventStatusRegister();
 		if(_isClockProblem() /* TODO and others */ && _handleError != 0) {
@@ -1370,7 +1387,7 @@ namespace DW1000Ng {
 		}
 	}
 
-	boolean isTransmitDone(){
+	bool isTransmitDone(){
 		_readSystemEventStatusRegister();
 		return _isTransmitDone();
 	}
@@ -1379,7 +1396,7 @@ namespace DW1000Ng {
 		_clearTransmitStatus();
 	}
 
-	boolean isReceiveDone() {
+	bool isReceiveDone() {
 		_readSystemEventStatusRegister();
 		return _isReceiveDone();
 	}
@@ -1388,7 +1405,7 @@ namespace DW1000Ng {
 		_clearReceiveStatus();
 	}
 
-	boolean isReceiveFailed() {
+	bool isReceiveFailed() {
 		_readSystemEventStatusRegister();
 		return _isReceiveFailed();
 	}
@@ -1399,7 +1416,7 @@ namespace DW1000Ng {
 		_resetReceiver();
 	}
 
-	boolean isReceiveTimeout() {
+	bool isReceiveTimeout() {
 		_readSystemEventMaskRegister();
 		return _isReceiveTimeout();
 	}
@@ -1475,10 +1492,10 @@ namespace DW1000Ng {
 		DW1000NgUtils::writeValueToBytes(expectedDeviceId, 0xDECA0130, LEN_DEV_ID);
 		_readBytesFromRegister(DEV_ID, NO_SUB, deviceId, LEN_DEV_ID);
 		if (memcmp(deviceId, expectedDeviceId, LEN_DEV_ID)) {
-			digitalWrite(_ss, LOW);
-			delay(1);
-			digitalWrite(_ss, HIGH);
-			delay(5);
+			gpio_set_level((gpio_num_t)_ss, 0);
+			platform_delay(1);
+			gpio_set_level((gpio_num_t)_ss, 1);
+			platform_delay(5);
 			setTxAntennaDelay(_antennaTxDelay);
 			if (_debounceClockEnabled){
 					enableDebounceClock();
@@ -1491,11 +1508,11 @@ namespace DW1000Ng {
 			softwareReset();
 		} else {
 			// DW1000Ng data sheet v2.08 §5.6.1 page 20, the RSTn pin should not be driven high but left floating.
-			pinMode(_rst, OUTPUT);
-			digitalWrite(_rst, LOW);
-			delay(2);  // DW1000Ng data sheet v2.08 §5.6.1 page 20: nominal 50ns, to be safe take more time
-			pinMode(_rst, INPUT);
-			delay(5); // dw1000Ng data sheet v1.2 page 5: nominal 3 ms, to be safe take more time
+			gpio_set_direction((gpio_num_t)_rst, GPIO_MODE_OUTPUT);
+			gpio_set_level((gpio_num_t)_rst, 0);
+			platform_delay(2);  // DW1000Ng data sheet v2.08 §5.6.1 page 20: nominal 50ns, to be safe take more time
+			gpio_set_direction((gpio_num_t)_rst, GPIO_MODE_INPUT);
+			platform_delay(5); // dw1000Ng data sheet v1.2 page 5: nominal 3 ms, to be safe take more time
 		}
 	}
 
@@ -1512,7 +1529,7 @@ namespace DW1000Ng {
 		_writeValueToRegister(AON, AON_CTRL_SUB, 0x02, LEN_AON_CTRL);
 		/* (b) Clear SOFTRESET to all zero’s */
 		_writeValueToRegister(PMSC, PMSC_SOFTRESET_SUB, 0x00, LEN_PMSC_SOFTRESET);
-		delay(1);
+		platform_delay(1);
 		/* (c) Set SOFTRESET to all ones */
 		_writeValueToRegister(PMSC, PMSC_SOFTRESET_SUB, 0xF0, LEN_PMSC_SOFTRESET);
 	}
@@ -1677,7 +1694,7 @@ namespace DW1000Ng {
 	void getTemperatureAndBatteryVoltage(float& temp, float& vbat) {
 		// follow the procedure from section 6.4 of the User Manual
 		_vbatAndTempSteps();
-		delay(1);
+		platform_delay(1);
 		byte sar_lvbat = 0; _readBytesFromRegister(TX_CAL, 0x03, &sar_lvbat, 1);
 		byte sar_ltemp = 0; _readBytesFromRegister(TX_CAL, 0x04, &sar_ltemp, 1);
 		
@@ -1705,7 +1722,7 @@ namespace DW1000Ng {
 		_writeSystemConfigurationRegister();
 	}
 
-	void setDoubleBuffering(boolean val) {
+	void setDoubleBuffering(bool val) {
 		DW1000NgUtils::setBit(_syscfg, LEN_SYS_CFG, DIS_DRXB_BIT, !val);
 	}
 
@@ -1716,22 +1733,22 @@ namespace DW1000Ng {
 	}
 
 	#if defined(__AVR__)
-		void setAndSaveAntennaDelay(uint16_t delay, uint8_t eeAddress) {
-			EEPROM.put(eeAddress, delay);
+		void setAndSaveAntennaDelay(uint16_t platform_delay, uint8_t eeAddress) {
+			EEPROM.put(eeAddress, platform_delay);
 			EEPROM.end();
-			setAntennaDelay(delay);
+			setAntennaDelay(platform_delay);
 		}
 
 		uint16_t getSavedAntennaDelay(uint8_t eeAddress) {
-			uint16_t delay;
-			EEPROM.get(eeAddress, delay);
+			uint16_t platform_delay;
+			EEPROM.get(eeAddress, platform_delay);
 			EEPROM.end();
-			return delay;
+			return platform_delay;
 		}
 
 		uint16_t setAntennaDelayFromEEPROM(uint8_t eeAddress) {
-			uint16_t delay = getSavedAntennaDelay(eeAddress);
-			setAntennaDelay(delay);
+			uint16_t platform_delay = getSavedAntennaDelay(eeAddress);
+			setAntennaDelay(platform_delay);
 		}
 	#endif
 
@@ -1778,7 +1795,7 @@ namespace DW1000Ng {
 		_writeBytesToRegister(SYS_CTRL, NO_SUB, _sysctrl, LEN_SYS_CTRL);
 	}
 
-	void setInterruptPolarity(boolean val) {
+	void setInterruptPolarity(bool val) {
 		DW1000NgUtils::setBit(_syscfg, LEN_SYS_CFG, HIRQ_POL_BIT, val);
 		_writeSystemConfigurationRegister();
 	}
@@ -1963,10 +1980,10 @@ namespace DW1000Ng {
 		_writeTransmitFrameControlRegister();
 	}
 
-	void setTransmitData(const String& data) {
-		uint16_t n = data.length()+1;
+	void setTransmitData(const char* data) {
+		uint16_t n = strlen(data) + 1;
 		byte* dataBytes = (byte*)malloc(n);
-		data.getBytes(dataBytes, n);
+		memcpy(dataBytes, data, n);
 		setTransmitData(dataBytes, n);
 		free(dataBytes);
 	}
@@ -1974,7 +1991,6 @@ namespace DW1000Ng {
 	// TODO reorder
 	uint16_t getReceivedDataLength() {
 		uint16_t len = 0;
-
 		// 10 bits of RX frame control register
 		byte rxFrameInfo[LEN_RX_FINFO];
 		_readBytesFromRegister(RX_FINFO, NO_SUB, rxFrameInfo, LEN_RX_FINFO);
@@ -1993,7 +2009,7 @@ namespace DW1000Ng {
 		_readBytesFromRegister(RX_BUFFER, NO_SUB, data, n);
 	}
 
-	void getReceivedData(String& data) {
+	void getReceivedData(char* data) {
 		uint16_t i;
 		uint16_t n = getReceivedDataLength(); // number of bytes w/o the two FCS ones
 		if(n <= 0) { // TODO
@@ -2002,12 +2018,12 @@ namespace DW1000Ng {
 		byte* dataBytes = (byte*)malloc(n);
 		getReceivedData(dataBytes, n);
 		// clear string
-		data.remove(0);
-		data  = "";
+		data[0] = '\0';
 		// append to string
 		for(i = 0; i < n; i++) {
-			data += (char)dataBytes[i];
+			data[i] = (char)dataBytes[i];
 		}
+		data[n] = '\0';
 		free(dataBytes);
 	}
 

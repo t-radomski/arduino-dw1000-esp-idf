@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include <Arduino.h>
+#include <DW1000NgTypes.hpp>
 
 /* Frame control */
 constexpr byte BLINK = 0xC5;
@@ -73,24 +73,24 @@ enum class NextActivity {
 };
 
 typedef struct RangeRequestResult {
-    boolean success;
+    bool success;
     uint16_t target_anchor;
 } RangeRequestResult;
 
 typedef struct RangeResult {
-    boolean success;
-    boolean next;
+    bool success;
+    bool next;
     uint16_t next_anchor;
     uint32_t new_blink_rate;
 } RangeResult;
 
 typedef struct RangeInfrastructureResult {
-    boolean success;
+    bool success;
     uint16_t new_blink_rate;
 } RangeInfrastructureResult;
 
 typedef struct RangeAcceptResult {
-    boolean success;
+    bool success;
     double range;
 } RangeAcceptResult;
 
@@ -105,7 +105,7 @@ namespace DW1000NgRTLS {
     void transmitRangingConfirm(byte tag_short_address[], byte next_anchor[]);
     void transmitActivityFinished(byte tag_short_address[], byte blink_rate[]);
     
-    boolean receiveFrame();
+    bool receiveFrame();
     void waitForTransmission();
     /*** End of TWR functions ***/
     

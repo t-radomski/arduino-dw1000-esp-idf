@@ -22,7 +22,6 @@
  * SOFTWARE.
 */
 
-#include <Arduino.h>
 #include "DW1000NgTime.hpp"
 #include "DW1000NgConstants.hpp"
 

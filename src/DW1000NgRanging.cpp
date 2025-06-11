@@ -22,7 +22,6 @@
  * SOFTWARE.
 */
 
-#include <Arduino.h>
 #include "DW1000Ng.hpp"
 #include "DW1000NgConstants.hpp"
 #include "DW1000NgRanging.hpp"

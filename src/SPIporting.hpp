@@ -27,46 +27,44 @@
 
 #pragma once
 
-#include <Arduino.h>
 #include "DW1000NgConstants.hpp"
-#include <SPI.h>
 
 namespace SPIporting{
 
     /** 
-	Initializes the SPI bus.
-	*/
-    void SPIinit(SPIClass &spi = SPI);
+    Initializes the SPI bus.
+    */
+    void SPIinit();
 
     /** 
-	Tells the driver library that no communication to a DW1000 will be required anymore.
-	This basically just frees SPI and the previously used pins.
-	*/
-	void SPIend();
+    Tells the driver library that no communication to a DW1000 will be required anymore.
+    This basically just frees SPI and the previously used pins.
+    */
+    void SPIend();
 
     /** 
-	(Re-)selects a specific DW1000 chip for communication. Used in case you switched SPI to another device.
-	*/
-	void SPIselect(uint8_t slaveSelectPIN, uint8_t irq = 0xff);
+    (Re-)selects a specific DW1000 chip for communication. Used in case you switched SPI to another device.
+    */
+    void SPIselect(uint8_t slaveSelectPIN, uint8_t irq = 0xff);
 
     /**
-    Arduino function to write to the SPI.
+    Function to write to the SPI.
     Takes two separate byte buffers for write header and write data
 
-    @param [in] Header lenght
+    @param [in] Header length
     @param [in] Header array built before 
-    @param [in] Data lenght
+    @param [in] Data length
     @param [in] Data array 
     */
     void writeToSPI(uint8_t slaveSelectPIN, uint8_t headerLen, byte header[], uint16_t dataLen, byte data[]);
 
     /**
-    Arduino function to read from the SPI.
+    Function to read from the SPI.
     Takes two separate byte buffers for write header and write data
 
-    @param [in] Header lenght
+    @param [in] Header length
     @param [in] Header array built before 
-    @param [in] Data lenght
+    @param [in] Data length
     @param [out] Data array 
     */
     void readFromSPI(uint8_t slaveSelectPIN, uint8_t headerLen, byte header[], uint16_t dataLen, byte data[]);

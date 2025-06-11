@@ -24,15 +24,14 @@
 
 #pragma once
 
-#include <Arduino.h>
 #include "DW1000NgConstants.hpp"
 
 typedef struct device_configuration_t {
-    boolean extendedFrameLength;
-    boolean receiverAutoReenable;
-    boolean smartPower;
-    boolean frameCheck;
-    boolean nlos;
+    bool extendedFrameLength;
+    bool receiverAutoReenable;
+    bool smartPower;
+    bool frameCheck;
+    bool nlos;
     SFDMode sfd;
     Channel channel;
     DataRate dataRate;
@@ -42,32 +41,32 @@ typedef struct device_configuration_t {
 } device_configuration_t;
 
 typedef struct interrupt_configuration_t {
-    boolean interruptOnSent;
-    boolean interruptOnReceived;
-    boolean interruptOnReceiveFailed;
-    boolean interruptOnReceiveTimeout;
-    boolean interruptOnReceiveTimestampAvailable;
-    boolean interruptOnAutomaticAcknowledgeTrigger;
+    bool interruptOnSent;
+    bool interruptOnReceived;
+    bool interruptOnReceiveFailed;
+    bool interruptOnReceiveTimeout;
+    bool interruptOnReceiveTimestampAvailable;
+    bool interruptOnAutomaticAcknowledgeTrigger;
 } interrupt_configuration_t;
 
 typedef struct frame_filtering_configuration_t {
-    boolean behaveAsCoordinator;
-    boolean allowBeacon;
-    boolean allowData;
-    boolean allowAcknowledgement;
-    boolean allowMacCommand;
-    boolean allowAllReserved;
-    boolean allowReservedFour;
-    boolean allowReservedFive;
+    bool behaveAsCoordinator;
+    bool allowBeacon;
+    bool allowData;
+    bool allowAcknowledgement;
+    bool allowMacCommand;
+    bool allowAllReserved;
+    bool allowReservedFour;
+    bool allowReservedFive;
 } frame_filtering_configuration_t;
 
 typedef struct sleep_configuration_t {
-    boolean onWakeUpRunADC;
-    boolean onWakeUpReceive;
-    boolean onWakeUpLoadEUI;
-    boolean onWakeUpLoadL64Param;
-    boolean preserveSleep;
-    boolean enableSLP;
-    boolean enableWakePIN;
-    boolean enableWakeSPI;
+    bool onWakeUpRunADC;
+    bool onWakeUpReceive;
+    bool onWakeUpLoadEUI;
+    bool onWakeUpLoadL64Param;
+    bool preserveSleep;
+    bool enableSLP;
+    bool enableWakePIN;
+    bool enableWakeSPI;
 } sleep_configuration_t;
