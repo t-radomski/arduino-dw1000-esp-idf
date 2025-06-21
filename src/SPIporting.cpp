@@ -30,8 +30,9 @@
 #include "DW1000NgRegisters.hpp"
 #include "driver/spi_master.h"
 #include "driver/gpio.h"
-#include "config.h"
+#include "config.hpp"
 #include <cstring>
+#include "esp_log.h"
 	
 static spi_device_handle_t spi_handle;
 
@@ -54,7 +55,10 @@ namespace SPIporting {
         // }
     }
 
-	void SPIinit(/* add parameters for bus/device config as needed */) {
+	void SPIinit()
+	{
+		ESP_LOGI("SPIporting", "SPIinit() start");
+
 		spi_bus_config_t buscfg = {};
 		buscfg.mosi_io_num = Config::PIN_MOSI;
 		buscfg.miso_io_num = Config::PIN_MISO;
@@ -62,15 +66,33 @@ namespace SPIporting {
 		buscfg.quadwp_io_num = -1;
 		buscfg.quadhd_io_num = -1;
 		buscfg.max_transfer_sz = 0;
-		
+
 		spi_device_interface_config_t devcfg = {};
-		devcfg.clock_speed_hz = 115200;
+		devcfg.clock_speed_hz = 2 * 1000 * 1000; // 2 MHz to start
 		devcfg.mode = 0;
 		devcfg.spics_io_num = Config::PIN_SS;
 		devcfg.queue_size = 1;
-		devcfg.cs_ena_posttrans = 0; // explicitly set to avoid missing initializer warning
-		spi_bus_initialize(SPI2_HOST, &buscfg, SPI_DMA_CH_AUTO);
-		spi_bus_add_device(SPI2_HOST, &devcfg, &spi_handle);
+		devcfg.cs_ena_posttrans = 0;
+
+		ESP_LOGI("SPIporting", "Initializing SPI bus on host SPI2_HOST...");
+		esp_err_t ret = spi_bus_initialize(SPI2_HOST, &buscfg, SPI_DMA_CH_AUTO);
+		if (ret == ESP_ERR_INVALID_STATE) {
+			ESP_LOGW("SPIporting", "SPI bus already initialized, skipping...");
+		} else if (ret != ESP_OK) {
+			ESP_LOGE("SPIporting", "spi_bus_initialize failed: %s", esp_err_to_name(ret));
+		} else {
+			ESP_LOGI("SPIporting", "SPI bus initialized successfully.");
+		}
+
+		ESP_LOGI("SPIporting", "Adding DW1000 device on SS=%d...", (int)Config::PIN_SS);
+		ret = spi_bus_add_device(SPI2_HOST, &devcfg, &spi_handle);
+		if (ret != ESP_OK) {
+			ESP_LOGE("SPIporting", "spi_bus_add_device failed: %s", esp_err_to_name(ret));
+		} else {
+			ESP_LOGI("SPIporting", "DW1000 device added successfully.");
+		}
+
+		ESP_LOGI("SPIporting", "SPIinit() done");
 	}
 
 	void SPIend() {
@@ -82,7 +104,6 @@ namespace SPIporting {
 		gpio_set_level(static_cast<gpio_num_t>(slaveSelectPIN), 1); // Deselect
 		gpio_set_direction(static_cast<gpio_num_t>(slaveSelectPIN), GPIO_MODE_OUTPUT);
 	}
-
 	void writeToSPI(uint8_t slaveSelectPIN, uint8_t headerLen, uint8_t *header, uint16_t dataLen, uint8_t *data) {
 		uint8_t tx_buf[headerLen + dataLen];
 		memcpy(tx_buf, header, headerLen);
@@ -92,16 +113,27 @@ namespace SPIporting {
 		t.length = static_cast<size_t>(8 * (headerLen + dataLen));
 		t.tx_buffer = tx_buf;
 		t.rx_buffer = nullptr;
-		spi_device_transmit(spi_handle, &t);
+		
+		esp_err_t ret = spi_device_transmit(spi_handle, &t);
+		if (ret != ESP_OK) {
+			ESP_LOGE("SPIporting", "SPI transmit failed: %s", esp_err_to_name(ret));
+		}
 	}
-    
-	void readFromSPI(uint8_t slaveSelectPIN, uint8_t headerLen, uint8_t *header, uint16_t dataLen, uint8_t *data) {
+    	void readFromSPI(uint8_t slaveSelectPIN, uint8_t headerLen, uint8_t *header, uint16_t dataLen, uint8_t *data) {
+		uint8_t rx_buf[headerLen + dataLen];
 		spi_transaction_t t = {};
 		t.length = static_cast<size_t>(8 * (headerLen + dataLen));
 		t.tx_buffer = header;
-		t.rx_buffer = data;
-		spi_device_transmit(spi_handle, &t);
-		// You may need to split header and data for more complex protocols.
+		t.rx_buffer = rx_buf;
+		
+		esp_err_t ret = spi_device_transmit(spi_handle, &t);
+		if (ret != ESP_OK) {
+			ESP_LOGE("SPIporting", "SPI receive failed: %s", esp_err_to_name(ret));
+			return;
+		}
+
+		// Copy only the data portion to the output buffer
+		memcpy(data, rx_buf + headerLen, dataLen);
 	}
 
 	void setSPIspeed(SPIClock speed) {

@@ -55,10 +55,11 @@
 #include "DW1000NgRegisters.hpp"
 #include "SPIporting.hpp"
 #include "DW1000NgTypes.hpp"
-#include "config.h"
+#include "config.hpp"
 
 #include "driver/gpio.h"
 #include "esp_intr_alloc.h"
+#include "esp_log.h"
 
 namespace DW1000Ng {
 	
@@ -1251,76 +1252,77 @@ namespace DW1000Ng {
 
 	/* ####################### PUBLIC ###################### */
 
-	void initialize(uint8_t ss, uint8_t irq, uint8_t rst) {
-		// generous initial init/wake-up-idle platform_delay
-		platform_delay(5);
-		// _ss = ss;
-		// _irq = irq;
-		// _rst = rst;
+	void initialize(uint8_t ss, uint8_t irq, uint8_t rst)
+	{
+		ESP_LOGI("DW1000Ng", "initialize() start with ss=%d, irq=%d, rst=%d", ss, irq, rst);
 
+		platform_delay(5);
+
+		// _ss = ss; _irq = irq; _rst = rst;
 		_ss = Config::PIN_SS;
 		_irq = Config::PIN_IRQ;
 		_rst = Config::PIN_RST;
 
-		if(rst != 0xff) {
-			// DW1000 data sheet v2.08 §5.6.1 page 20, the RSTn pin should not be driven high but left floating.
+		ESP_LOGI("DW1000Ng", "Using Config pins -> SS=%d, IRQ=%d, RST=%d", _ss, _irq, _rst);
+
+		if (rst != 0xff) {
 			gpio_set_direction((gpio_num_t)_rst, GPIO_MODE_INPUT);
 		}
 
-		SPIporting::SPIinit();
-		// pin and basic member setup
-		// attach interrupt
-		// TODO throw error if pin is not a interrupt pin
-		if(_irq != 0xff) {
+		SPIporting::SPIinit(); // The new logs are in here
+		// Optionally log that we are setting up the interrupt
+		if (_irq != 0xff) {
+			ESP_LOGI("DW1000Ng", "Configuring interrupt on pin %d ...", _irq);
 			gpio_config_t io_conf = {};
-			io_conf.intr_type = GPIO_INTR_POSEDGE; // RISING edge
+			io_conf.intr_type = GPIO_INTR_POSEDGE;
 			io_conf.mode = GPIO_MODE_INPUT;
 			io_conf.pin_bit_mask = (1ULL << _irq);
 			io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
 			io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
 			gpio_config(&io_conf);
 
-			gpio_install_isr_service(0); // Call once in your app, ignore error if already installed
-			gpio_isr_handler_add((gpio_num_t)_irq, (gpio_isr_t)interruptServiceRoutine, NULL);
+			gpio_install_isr_service(0);
+			// COMMENTED OUT PROBLEMATIC LINE - this causes watchdog timeout
+			// gpio_isr_handler_add((gpio_num_t)_irq, (gpio_isr_t)interruptServiceRoutine, NULL);
+			ESP_LOGW("DW1000Ng", "GPIO interrupt registration DISABLED - use polling or fixed interrupt system");
 		}
+
 		SPIporting::SPIselect(_ss);
-		// reset chip (either soft or hard)
+
+		// Reset device
+		ESP_LOGI("DW1000Ng", "Resetting DW1000...");
 		reset();
-		
+
 		SPIporting::setSPIspeed(SPIClock::SLOW);
 		_enableClock(SYS_XTI_CLOCK);
 		platform_delay(5);
 
-		// Configure the CPLL lock detect
 		_writeBitToRegister(EXT_SYNC, EC_CTRL_SUB, LEN_EC_CTRL, PLLLDT_BIT, true);
-
-		// Configure XTAL trim
 		_fsxtalt();
-
-		// load LDE micro-code
 		_manageLDE();
 
-		// read the temp and vbat readings from OTP that were recorded during production test
-		// see 6.3.1 OTP memory map
+		// Read OTP
+		ESP_LOGI("DW1000Ng", "Reading OTP calibration values...");
 		byte buf_otp[4];
-		_readBytesOTP(0x008, buf_otp); // the stored 3.3 V reading
+		_readBytesOTP(0x008, buf_otp);
 		_vmeas3v3 = buf_otp[0];
-		_readBytesOTP(0x009, buf_otp); // the stored 23C reading
+		_readBytesOTP(0x009, buf_otp);
 		_tmeas23C = buf_otp[0];
 
 		_enableClock(SYS_AUTO_CLOCK);
 		platform_delay(5);
 		SPIporting::setSPIspeed(SPIClock::FAST);
 
+		// Basic registers
 		_readNetworkIdAndDeviceAddress();
 		_readSystemConfigurationRegister();
 		_readChannelControlRegister();
 		_readTransmitFrameControlRegister();
 		_readSystemEventMaskRegister();
 
-		/* Cleared AON:CFG1(0x2C:0x0A) for proper operation of deepSleep */
 		_writeValueToRegister(AON, AON_CFG1_SUB, 0x00, LEN_AON_CFG1);
-		
+
+		ESP_LOGI("DW1000Ng", "initialize() complete");
 	}
 
 	void initializeNoInterrupt(uint8_t ss, uint8_t rst) {

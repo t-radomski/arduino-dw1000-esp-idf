@@ -6,6 +6,7 @@ idf_component_register(
         "src/DW1000NgRTLS.cpp"
         "src/DW1000NgTime.cpp"
         "src/SPIporting.cpp"
+        "src/DW1000Ng_interrupt_fix.cpp"
     REQUIRES driver
     INCLUDE_DIRS "src"
 )
