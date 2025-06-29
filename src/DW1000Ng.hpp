@@ -59,7 +59,7 @@ namespace DW1000Ng {
 	@param[in] irq The interrupt line/pin that connects the Arduino.
 	@param[in] rst The reset line/pin for hard resets of ICs that connect to the Arduino. Value 0xff means soft reset.
 	*/
-	void initialize(uint8_t ss, uint8_t irq, uint8_t rst = 0xff);
+	void initialize(uint8_t ss, uint8_t irq, uint8_t rst, uint8_t mosi, uint8_t miso, uint8_t sck);
 
 	/** 
 	Initiates and starts a sessions with a DW1000 without interrupt. If rst is not set or value 0xff, a soft resets (i.e. command

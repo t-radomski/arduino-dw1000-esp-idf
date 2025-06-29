@@ -34,7 +34,7 @@ namespace SPIporting{
     /** 
     Initializes the SPI bus.
     */
-    void SPIinit();
+    void SPIinit(uint8_t ss_pin, uint8_t mosi_pin, uint8_t miso_pin, uint8_t sck_pin);
 
     /** 
     Tells the driver library that no communication to a DW1000 will be required anymore.
@@ -74,6 +74,6 @@ namespace SPIporting{
 
     @param [in] SPIClock FAST or SLOW
     */
-    void setSPIspeed(SPIClock speed);
+    void setSPIspeed(SPIClock speed, uint8_t ss_pin);
 
 }

@@ -55,7 +55,6 @@
 #include "DW1000NgRegisters.hpp"
 #include "SPIporting.hpp"
 #include "DW1000NgTypes.hpp"
-#include "config.hpp"
 
 #include "driver/gpio.h"
 #include "esp_intr_alloc.h"
@@ -72,6 +71,9 @@ namespace DW1000Ng {
 		uint8_t _ss = 0xff;
 		uint8_t _irq = 0xff;
 		uint8_t _rst = 0xff;
+		uint8_t _mosi = 0xff;
+		uint8_t _miso = 0xff;
+		uint8_t _sck = 0xff;
 
 		/* IRQ callbacks */
 		void (* _handleSent)(void)                      = nullptr;
@@ -1252,16 +1254,19 @@ namespace DW1000Ng {
 
 	/* ####################### PUBLIC ###################### */
 
-	void initialize(uint8_t ss, uint8_t irq, uint8_t rst)
+	void initialize(uint8_t ss, uint8_t irq, uint8_t rst, uint8_t mosi, uint8_t miso, uint8_t sck)
 	{
 		ESP_LOGI("DW1000Ng", "initialize() start with ss=%d, irq=%d, rst=%d", ss, irq, rst);
 
 		platform_delay(5);
 
 		// _ss = ss; _irq = irq; _rst = rst;
-		_ss = Config::PIN_SS;
-		_irq = Config::PIN_IRQ;
-		_rst = Config::PIN_RST;
+		_ss = ss;
+		_irq = irq;
+		_rst = rst;
+		_mosi = mosi;
+		_miso = miso;
+		_sck = sck;
 
 		ESP_LOGI("DW1000Ng", "Using Config pins -> SS=%d, IRQ=%d, RST=%d", _ss, _irq, _rst);
 
@@ -1269,7 +1274,7 @@ namespace DW1000Ng {
 			gpio_set_direction((gpio_num_t)_rst, GPIO_MODE_INPUT);
 		}
 
-		SPIporting::SPIinit(); // The new logs are in here
+		SPIporting::SPIinit(_ss, _mosi, _miso, _sck); // The new logs are in here
 		// Optionally log that we are setting up the interrupt
 		if (_irq != 0xff) {
 			ESP_LOGI("DW1000Ng", "Configuring interrupt on pin %d ...", _irq);
@@ -1293,7 +1298,7 @@ namespace DW1000Ng {
 		ESP_LOGI("DW1000Ng", "Resetting DW1000...");
 		reset();
 
-		SPIporting::setSPIspeed(SPIClock::SLOW);
+		SPIporting::setSPIspeed(SPIClock::SLOW, _ss);
 		_enableClock(SYS_XTI_CLOCK);
 		platform_delay(5);
 
@@ -1311,7 +1316,7 @@ namespace DW1000Ng {
 
 		_enableClock(SYS_AUTO_CLOCK);
 		platform_delay(5);
-		SPIporting::setSPIspeed(SPIClock::FAST);
+		SPIporting::setSPIspeed(SPIClock::FAST, _ss);
 
 		// Basic registers
 		_readNetworkIdAndDeviceAddress();
@@ -1326,7 +1331,7 @@ namespace DW1000Ng {
 	}
 
 	void initializeNoInterrupt(uint8_t ss, uint8_t rst) {
-		initialize(ss, 0xff, rst);
+		initialize(ss, 0xff, rst, 0xff, 0xff, 0xff);
 	}
 
 	/* callback handler management. */
@@ -1524,7 +1529,7 @@ namespace DW1000Ng {
 	}
 
 	void softwareReset() {
-		SPIporting::setSPIspeed(SPIClock::SLOW);
+		SPIporting::setSPIspeed(SPIClock::SLOW, _ss);
 		
 		/* Disable sequencing and go to state "INIT" - (a) Sets SYSCLKS to 01 */
 		_disableSequencing();
@@ -1941,7 +1946,7 @@ namespace DW1000Ng {
 	void enableTransmitPowerSpectrumTestMode(int32_t repeat_interval) {
 		/* DW1000 clocks must be set to crystal speed so SPI rate have to be lowered and will
       	not be increased again */
-		SPIporting::setSPIspeed(SPIClock::SLOW);
+		SPIporting::setSPIspeed(SPIClock::SLOW, _ss);
 
         _disableSequencing();
         _configureRFTransmitPowerSpectrumTestMode();

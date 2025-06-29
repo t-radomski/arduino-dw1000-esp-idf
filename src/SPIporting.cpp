@@ -30,7 +30,6 @@
 #include "DW1000NgRegisters.hpp"
 #include "driver/spi_master.h"
 #include "driver/gpio.h"
-#include "config.hpp"
 #include <cstring>
 #include "esp_log.h"
 	
@@ -55,14 +54,14 @@ namespace SPIporting {
         // }
     }
 
-	void SPIinit()
+	void SPIinit(uint8_t ss_pin, uint8_t mosi_pin, uint8_t miso_pin, uint8_t sck_pin)
 	{
 		ESP_LOGI("SPIporting", "SPIinit() start");
 
 		spi_bus_config_t buscfg = {};
-		buscfg.mosi_io_num = Config::PIN_MOSI;
-		buscfg.miso_io_num = Config::PIN_MISO;
-		buscfg.sclk_io_num = Config::PIN_SCK;
+		buscfg.mosi_io_num = mosi_pin;
+		buscfg.miso_io_num = miso_pin;
+		buscfg.sclk_io_num = sck_pin;
 		buscfg.quadwp_io_num = -1;
 		buscfg.quadhd_io_num = -1;
 		buscfg.max_transfer_sz = 0;
@@ -70,7 +69,7 @@ namespace SPIporting {
 		spi_device_interface_config_t devcfg = {};
 		devcfg.clock_speed_hz = 2 * 1000 * 1000; // 2 MHz to start
 		devcfg.mode = 0;
-		devcfg.spics_io_num = Config::PIN_SS;
+		devcfg.spics_io_num = ss_pin;
 		devcfg.queue_size = 1;
 		devcfg.cs_ena_posttrans = 0;
 
@@ -84,7 +83,7 @@ namespace SPIporting {
 			ESP_LOGI("SPIporting", "SPI bus initialized successfully.");
 		}
 
-		ESP_LOGI("SPIporting", "Adding DW1000 device on SS=%d...", (int)Config::PIN_SS);
+		ESP_LOGI("SPIporting", "Adding DW1000 device on SS=%d...", (int)ss_pin);
 		ret = spi_bus_add_device(SPI2_HOST, &devcfg, &spi_handle);
 		if (ret != ESP_OK) {
 			ESP_LOGE("SPIporting", "spi_bus_add_device failed: %s", esp_err_to_name(ret));
@@ -136,7 +135,7 @@ namespace SPIporting {
 		memcpy(data, rx_buf + headerLen, dataLen);
 	}
 
-	void setSPIspeed(SPIClock speed) {
+	void setSPIspeed(SPIClock speed, uint8_t ss_pin) {
 		spi_bus_remove_device(spi_handle);
 
 		spi_device_interface_config_t devcfg = {};
@@ -145,7 +144,7 @@ namespace SPIporting {
 		devcfg.dummy_bits = 0;
 		devcfg.mode = 0;
 		devcfg.clock_speed_hz = (speed == SPIClock::FAST) ? 20000000 : 2000000; // 20MHz or 2MHz
-		devcfg.spics_io_num = Config::PIN_SS;
+		devcfg.spics_io_num = ss_pin;
 		devcfg.flags = 0;
 		devcfg.queue_size = 1;
 		devcfg.pre_cb = nullptr;
