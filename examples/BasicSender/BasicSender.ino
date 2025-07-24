@@ -79,12 +79,12 @@ device_configuration_t DEFAULT_CONFIG = {
 void setup() {
   // DEBUG monitoring
   Serial.begin(9600);
-  Serial.println(F("### DW1000Ng-arduino-sender-test ###"));
+  ESP_LOGI(TAG_TWR, "%s",F("### DW1000Ng-arduino-sender-test ###"));
   _spi = new SPIClass();
   _spi->begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CS);
   // initialize the driver
   DW1000Ng::initialize(PIN_CS, PIN_IRQ, PIN_RST, *_spi);
-  Serial.println(F("DW1000Ng initialized ..."));
+  ESP_LOGI(TAG_TWR, "%s",F("DW1000Ng initialized ..."));
 
   DW1000Ng::applyConfiguration(DEFAULT_CONFIG);
 	//DW1000Ng::applyInterruptConfiguration(DEFAULT_INTERRUPT_CONFIG);
@@ -93,17 +93,17 @@ void setup() {
   DW1000Ng::setNetworkId(10);
 
   DW1000Ng::setAntennaDelay(16436);
-  Serial.println(F("Committed configuration ..."));
+  ESP_LOGI(TAG_TWR, "%s",F("Committed configuration ..."));
   // DEBUG chip info and registers pretty printed
   char msg[128];
   DW1000Ng::getPrintableDeviceIdentifier(msg);
-  Serial.print("Device ID: "); Serial.println(msg);
+  ESP_LOGI(TAG_TWR, "%s","Device ID: "); ESP_LOGI(TAG_TWR, "%s",msg);
   DW1000Ng::getPrintableExtendedUniqueIdentifier(msg);
-  Serial.print("Unique ID: "); Serial.println(msg);
+  ESP_LOGI(TAG_TWR, "%s","Unique ID: "); ESP_LOGI(TAG_TWR, "%s",msg);
   DW1000Ng::getPrintableNetworkIdAndShortAddress(msg);
-  Serial.print("Network ID & Device Address: "); Serial.println(msg);
+  ESP_LOGI(TAG_TWR, "%s","Network ID & Device Address: "); ESP_LOGI(TAG_TWR, "%s",msg);
   DW1000Ng::getPrintableDeviceMode(msg);
-  Serial.print("Device mode: "); Serial.println(msg);
+  ESP_LOGI(TAG_TWR, "%s","Device mode: "); ESP_LOGI(TAG_TWR, "%s",msg);
   // attach callback for (successfully) sent messages
   //DW1000Ng::attachSentHandler(handleSent);
   // start a transmission
@@ -119,7 +119,7 @@ void handleSent() {
 
 void transmit() {
   // transmit some data
-  Serial.print("Transmitting packet ... #"); Serial.println(sentNum);
+  ESP_LOGI(TAG_TWR, "%s","Transmitting packet ... #"); ESP_LOGI(TAG_TWR, "%s",sentNum);
   String msg = "Hello DW1000Ng, it's #"; msg += sentNum;
   DW1000Ng::setTransmitData(msg);
   // delay sending the message for the given amount
@@ -138,7 +138,7 @@ void transmit() {
 void loop() {
     transmit();
     // update and print some information about the sent message
-    Serial.print("ARDUINO delay sent [ms] ... "); Serial.println(millis() - delaySent);
+    ESP_LOGI(TAG_TWR, "%s","ARDUINO delay sent [ms] ... "); ESP_LOGI(TAG_TWR, "%s",millis() - delaySent);
     uint64_t newSentTime = DW1000Ng::getTransmitTimestamp();
-    Serial.print("Processed packet ... #"); Serial.println(sentNum);
+    ESP_LOGI(TAG_TWR, "%s","Processed packet ... #"); ESP_LOGI(TAG_TWR, "%s",sentNum);
 }

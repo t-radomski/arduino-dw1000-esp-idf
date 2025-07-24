@@ -39,12 +39,12 @@ device_configuration_t POWERTEST_CONFIG = {
 void setup() {
     // DEBUG monitoring
     Serial.begin(115200);
-    Serial.println(F("### DW1000Ng-transmit-spectrum-power-test ###"));
+    ESP_LOGI(TAG_TWR, "%s",F("### DW1000Ng-transmit-spectrum-power-test ###"));
     _spi = new SPIClass();
     _spi->begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CS);
     // initialize the driver
     DW1000Ng::initialize(PIN_CS, PIN_IRQ, PIN_RST, *_spi);
-    Serial.println(F("DW1000Ng initialized ..."));
+    ESP_LOGI(TAG_TWR, "%s",F("DW1000Ng initialized ..."));
     // general configuration
 
     DW1000Ng::applyConfiguration(POWERTEST_CONFIG);
@@ -53,8 +53,8 @@ void setup() {
     DW1000Ng::setTXPower(0x25456585);
     DW1000Ng::setTCPGDelay(0xC0);
 
-    Serial.println(F("Committed configuration ..."));
-    Serial.println(F("Transmitting for calibration...."));
+    ESP_LOGI(TAG_TWR, "%s",F("Committed configuration ..."));
+    ESP_LOGI(TAG_TWR, "%s",F("Transmitting for calibration...."));
     
     DW1000Ng::enableTransmitPowerSpectrumTestMode(124800); /* Approx 1ms long transmissions */
     DW1000Ng::setTransmitData(data, sizeof(data));
@@ -62,7 +62,7 @@ void setup() {
 
     delay(120000); /* 2 minutes */
 
-    Serial.println(F("End of transmission"));
+    ESP_LOGI(TAG_TWR, "%s",F("End of transmission"));
     /* used to stop transmission */
     DW1000Ng::softwareReset();
 }

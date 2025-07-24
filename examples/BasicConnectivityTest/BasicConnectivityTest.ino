@@ -65,11 +65,11 @@ void setup() {
   _spi->begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CS);
   // initialize the driver
   DW1000Ng::initialize(PIN_CS, PIN_IRQ, PIN_RST, *_spi);
-  Serial.println(F("DW1000Ng initialized ..."));
+  ESP_LOGI(TAG_TWR, "%s",F("DW1000Ng initialized ..."));
   // general configuration
   DW1000Ng::setDeviceAddress(5);
   DW1000Ng::setNetworkId(10);
-  Serial.println(F("Committed configuration ..."));
+  ESP_LOGI(TAG_TWR, "%s",F("Committed configuration ..."));
   // wait a bit
   delay(1000);
 }
@@ -78,13 +78,13 @@ void loop() {
   // DEBUG chip info and registers pretty printed
   char msg[128];
   DW1000Ng::getPrintableDeviceIdentifier(msg);
-  Serial.print("Device ID: "); Serial.println(msg);
+  ESP_LOGI(TAG_TWR, "%s","Device ID: "); ESP_LOGI(TAG_TWR, "%s",msg);
   DW1000Ng::getPrintableExtendedUniqueIdentifier(msg);
-  Serial.print("Unique ID: "); Serial.println(msg);
+  ESP_LOGI(TAG_TWR, "%s","Unique ID: "); ESP_LOGI(TAG_TWR, "%s",msg);
   DW1000Ng::getPrintableNetworkIdAndShortAddress(msg);
-  Serial.print("Network ID & Device Address: "); Serial.println(msg);
+  ESP_LOGI(TAG_TWR, "%s","Network ID & Device Address: "); ESP_LOGI(TAG_TWR, "%s",msg);
   DW1000Ng::getPrintableDeviceMode(msg);
-  Serial.print("Device mode: "); Serial.println(msg);
+  ESP_LOGI(TAG_TWR, "%s","Device mode: "); ESP_LOGI(TAG_TWR, "%s",msg);
   // wait a bit
   delay(10000);
 }

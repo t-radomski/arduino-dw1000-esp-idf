@@ -129,12 +129,12 @@ void setup() {
     // DEBUG monitoring
     Serial.begin(115200);
     delay(1000);
-    Serial.println(F("### DW1000Ng-arduino-ranging-anchor ###"));
+    ESP_LOGI(TAG_TWR, "%s",F("### DW1000Ng-arduino-ranging-anchor ###"));
     _spi = new SPIClass();
     _spi->begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CS);
     // initialize the driver
     DW1000Ng::initialize(PIN_CS, PIN_IRQ, PIN_RST, *_spi);
-    Serial.println(F("DW1000Ng initialized ..."));
+    ESP_LOGI(TAG_TWR, "%s",F("DW1000Ng initialized ..."));
     // general configuration
     DW1000Ng::applyConfiguration(DEFAULT_CONFIG);
 	DW1000Ng::applyInterruptConfiguration(DEFAULT_INTERRUPT_CONFIG);
@@ -143,17 +143,17 @@ void setup() {
 	
     DW1000Ng::setAntennaDelay(16436);
     
-    Serial.println(F("Committed configuration ..."));
+    ESP_LOGI(TAG_TWR, "%s",F("Committed configuration ..."));
     // DEBUG chip info and registers pretty printed
     char msg[128];
     DW1000Ng::getPrintableDeviceIdentifier(msg);
-    Serial.print("Device ID: "); Serial.println(msg);
+    ESP_LOGI(TAG_TWR, "%s","Device ID: "); ESP_LOGI(TAG_TWR, "%s",msg);
     DW1000Ng::getPrintableExtendedUniqueIdentifier(msg);
-    Serial.print("Unique ID: "); Serial.println(msg);
+    ESP_LOGI(TAG_TWR, "%s","Unique ID: "); ESP_LOGI(TAG_TWR, "%s",msg);
     DW1000Ng::getPrintableNetworkIdAndShortAddress(msg);
-    Serial.print("Network ID & Device Address: "); Serial.println(msg);
+    ESP_LOGI(TAG_TWR, "%s","Network ID & Device Address: "); ESP_LOGI(TAG_TWR, "%s",msg);
     DW1000Ng::getPrintableDeviceMode(msg);
-    Serial.print("Device mode: "); Serial.println(msg);
+    ESP_LOGI(TAG_TWR, "%s","Device mode: "); ESP_LOGI(TAG_TWR, "%s",msg);
     // attach callback for (successfully) sent and received messages
     DW1000Ng::attachSentHandler(handleSent);
     DW1000Ng::attachReceivedHandler(handleReceived);
@@ -269,10 +269,10 @@ void loop() {
                 String rangeString = "Range: "; rangeString += distance; rangeString += " m";
                 rangeString += "\t RX power: "; rangeString += DW1000Ng::getReceivePower(); rangeString += " dBm";
                 rangeString += "\t Sampling: "; rangeString += samplingRate; rangeString += " Hz";
-                Serial.println(rangeString);
-                //Serial.print("FP power is [dBm]: "); Serial.print(DW1000Ng::getFirstPathPower());
-                //Serial.print("RX power is [dBm]: "); Serial.println(DW1000Ng::getReceivePower());
-                //Serial.print("Receive quality: "); Serial.println(DW1000Ng::getReceiveQuality());
+                ESP_LOGI(TAG_TWR, "%s",rangeString);
+                //ESP_LOGI(TAG_TWR, "%s","FP power is [dBm]: "); ESP_LOGI(TAG_TWR, "%s",DW1000Ng::getFirstPathPower());
+                //ESP_LOGI(TAG_TWR, "%s","RX power is [dBm]: "); ESP_LOGI(TAG_TWR, "%s",DW1000Ng::getReceivePower());
+                //ESP_LOGI(TAG_TWR, "%s","Receive quality: "); ESP_LOGI(TAG_TWR, "%s",DW1000Ng::getReceiveQuality());
                 // update sampling rate (each second)
                 transmitRangeReport(distance * DISTANCE_OF_RADIO_INV);
                 successRangingCount++;

@@ -7,7 +7,7 @@ file(REMOVE_RECURSE
   "bootloader\\bootloader.elf"
   "bootloader\\bootloader.map"
   "config\\sdkconfig.cmake"
-  "config\\sdkconfig.h"
+  "config\\sdkconfig.hpp"
   "esp-idf\\esptool_py\\flasher_args.json.in"
   "esp-idf\\mbedtls\\x509_crt_bundle"
   "flash_app_args"

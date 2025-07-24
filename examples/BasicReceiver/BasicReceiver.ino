@@ -78,12 +78,12 @@ device_configuration_t DEFAULT_CONFIG = {
 void setup() {
   // DEBUG monitoring
   Serial.begin(9600);
-  Serial.println(F("### DW1000Ng-arduino-receiver-test ###"));
+  ESP_LOGI(TAG_TWR, "%s",F("### DW1000Ng-arduino-receiver-test ###"));
   _spi = new SPIClass();
   _spi->begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CS);
   // initialize the driver
   DW1000Ng::initialize(PIN_CS, PIN_IRQ, PIN_RST, *_spi);
-  Serial.println(F("DW1000Ng initialized ..."));
+  ESP_LOGI(TAG_TWR, "%s",F("DW1000Ng initialized ..."));
 
   DW1000Ng::applyConfiguration(DEFAULT_CONFIG);
 
@@ -91,17 +91,17 @@ void setup() {
   DW1000Ng::setNetworkId(10);
 
   DW1000Ng::setAntennaDelay(16436);
-  Serial.println(F("Committed configuration ..."));
+  ESP_LOGI(TAG_TWR, "%s",F("Committed configuration ..."));
   // DEBUG chip info and registers pretty printed
   char msg[128];
   DW1000Ng::getPrintableDeviceIdentifier(msg);
-  Serial.print("Device ID: "); Serial.println(msg);
+  ESP_LOGI(TAG_TWR, "%s","Device ID: "); ESP_LOGI(TAG_TWR, "%s",msg);
   DW1000Ng::getPrintableExtendedUniqueIdentifier(msg);
-  Serial.print("Unique ID: "); Serial.println(msg);
+  ESP_LOGI(TAG_TWR, "%s","Unique ID: "); ESP_LOGI(TAG_TWR, "%s",msg);
   DW1000Ng::getPrintableNetworkIdAndShortAddress(msg);
-  Serial.print("Network ID & Device Address: "); Serial.println(msg);
+  ESP_LOGI(TAG_TWR, "%s","Network ID & Device Address: "); ESP_LOGI(TAG_TWR, "%s",msg);
   DW1000Ng::getPrintableDeviceMode(msg);
-  Serial.print("Device mode: "); Serial.println(msg);
+  ESP_LOGI(TAG_TWR, "%s","Device mode: "); ESP_LOGI(TAG_TWR, "%s",msg);
 }
 
 void loop() {
@@ -115,8 +115,8 @@ void loop() {
   numReceived++;
   // get data as string
   DW1000Ng::getReceivedData(message);
-  Serial.print("Received message ... #"); Serial.println(numReceived);
-  Serial.print("Data is ... "); Serial.println(message);
-  Serial.print("RX power is [dBm] ... "); Serial.println(DW1000Ng::getReceivePower());
-  Serial.print("Signal quality is ... "); Serial.println(DW1000Ng::getReceiveQuality());
+  ESP_LOGI(TAG_TWR, "%s","Received message ... #"); ESP_LOGI(TAG_TWR, "%s",numReceived);
+  ESP_LOGI(TAG_TWR, "%s","Data is ... "); ESP_LOGI(TAG_TWR, "%s",message);
+  ESP_LOGI(TAG_TWR, "%s","RX power is [dBm] ... "); ESP_LOGI(TAG_TWR, "%s",DW1000Ng::getReceivePower());
+  ESP_LOGI(TAG_TWR, "%s","Signal quality is ... "); ESP_LOGI(TAG_TWR, "%s",DW1000Ng::getReceiveQuality());
 }

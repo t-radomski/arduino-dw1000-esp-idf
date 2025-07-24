@@ -63,27 +63,27 @@ void setup() {
   _spi->begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CS);
   // initialize the driver
   DW1000Ng::initialize(PIN_CS, PIN_IRQ, PIN_RST, *_spi);
-  Serial.println(F("DW1000Ng initialized ..."));
+  ESP_LOGI(TAG_TWR, "%s",F("DW1000Ng initialized ..."));
   // general configuration
   DW1000Ng::setDeviceAddress(5);
   DW1000Ng::setNetworkId(10);
-  Serial.println(F("Committed configuration ..."));
+  ESP_LOGI(TAG_TWR, "%s",F("Committed configuration ..."));
   // First we genereate a random integer to set as antenna delay
   uint16_t randNumber = random(65535);
   DW1000Ng::setAndSaveAntennaDelay(randNumber);
   // Now the antenna delay is set to this number, and it is saved in the EEPROM
-  Serial.println("Now in EEPROM: " + String(DW1000Ng::getSavedAntennaDelay()));
-  Serial.println("TX delay: " + String(DW1000Ng::getTxAntennaDelay()));
-  Serial.println("RX delay: " + String(DW1000Ng::getRxAntennaDelay()));
+  ESP_LOGI(TAG_TWR, "%s","Now in EEPROM: " + String(DW1000Ng::getSavedAntennaDelay()));
+  ESP_LOGI(TAG_TWR, "%s","TX delay: " + String(DW1000Ng::getTxAntennaDelay()));
+  ESP_LOGI(TAG_TWR, "%s","RX delay: " + String(DW1000Ng::getRxAntennaDelay()));
   // We simulate a reboot by resetting the antenna delay
   DW1000Ng::setAntennaDelay(0);
-  Serial.println("TX delay: " + String(DW1000Ng::getTxAntennaDelay()));
-  Serial.println("RX delay: " + String(DW1000Ng::getRxAntennaDelay()));
+  ESP_LOGI(TAG_TWR, "%s","TX delay: " + String(DW1000Ng::getTxAntennaDelay()));
+  ESP_LOGI(TAG_TWR, "%s","RX delay: " + String(DW1000Ng::getRxAntennaDelay()));
   // We can now restore it from EEPROM
   DW1000Ng::setAntennaDelayFromEEPROM();
-  Serial.println("Restored from EEPROM");
-  Serial.println("TX delay: " + String(DW1000Ng::getTxAntennaDelay()));
-  Serial.println("RX delay: " + String(DW1000Ng::getRxAntennaDelay()));
+  ESP_LOGI(TAG_TWR, "%s","Restored from EEPROM");
+  ESP_LOGI(TAG_TWR, "%s","TX delay: " + String(DW1000Ng::getTxAntennaDelay()));
+  ESP_LOGI(TAG_TWR, "%s","RX delay: " + String(DW1000Ng::getRxAntennaDelay()));
 
   // You can also of course retrieve the value saved in EEPROM like this
   uint16_t delaySavedInEEPROM = DW1000Ng::getSavedAntennaDelay();

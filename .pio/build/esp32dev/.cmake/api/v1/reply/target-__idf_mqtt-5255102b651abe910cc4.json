@@ -267,7 +267,7 @@
 				},
 				{
 					"backtrace" : 11,
-					"define" : "MBEDTLS_CONFIG_FILE=\"mbedtls/esp_config.h\""
+					"define" : "MBEDTLS_CONFIG_FILE=\"mbedtls/esp_config.hpp\""
 				},
 				{
 					"backtrace" : 4,
